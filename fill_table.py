@@ -48,5 +48,5 @@ def getExercises(workout_num): # на выходе словарь трениро
             exerc_dict[key].append(workout[key])
     return exerc_dict
 
-
+fill_table()
 print(getExercises(Workout2))

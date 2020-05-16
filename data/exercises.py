@@ -11,12 +11,10 @@ class Exercises(SqlAlchemyBase):
                               unique=True, nullable=True)
     about = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=False)
-    workout1 = orm.relationship("Workout1")
-    workout2 = orm.relationship("Workout2")
+    # workout1 = orm.relationship("Workout1")
+    # workout2 = orm.relationship("Workout2")
+    workouts = orm.relationship("Workouts")
 
-    # __tablename__ = 'exercises'
-    #
-    # id = sqlalchemy.Column(sqlalchemy.Integer,
-    #                        primary_key=True, autoincrement=True, ForeignKey('workout1.ex_id'))
-    # workout1 = orm.relationship('Workout1', back_populates="ex_id")
-    #
+
+
+
