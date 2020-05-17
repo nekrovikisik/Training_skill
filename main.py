@@ -57,8 +57,9 @@ def main():
 
 def handle_dialog(req, res):
     if is_new_session(req):
+        setUserId(req)
         if is_new_user(req):
-            setUserId(req)  # добавляем в sessionStorage userid
+              # добавляем в sessionStorage userid
             sessionStorage['state'] = 'firstMeet'
             firstMeet(req, res)
         else:
