@@ -105,4 +105,4 @@ def get_suggests(user_id):
 
 if __name__ == '__main__':
     from os import environ
-    app.run(debug=False, port=environ.get("PORT", 5000), processes=2)
+    app.run(debug=False, port=environ.get("PORT", 42808))
