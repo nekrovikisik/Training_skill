@@ -104,4 +104,5 @@ def get_suggests(user_id):
 
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=8888)
+    from os import environ
+    app.run(debug=False, port=environ.get("PORT", 5000), processes=2)
