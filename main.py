@@ -1,5 +1,6 @@
 # Импортирует поддержку UTF-8.
 from __future__ import unicode_literals
+import  gunicorn
 
 # Импортируем модули для работы с JSON и логами.
 import json
@@ -104,5 +105,4 @@ def get_suggests(user_id):
 
 
 if __name__ == '__main__':
-    from os import environ
-    app.run(debug=False, port=environ.get("PORT", 42808))
+    app.run()
