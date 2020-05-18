@@ -56,6 +56,7 @@ def main():
 
 
 def handle_dialog(req, res):
+    setUserId(req)
     if is_new_session(req):
         print('This id new session')
         setUserId(req)
@@ -79,7 +80,6 @@ def handle_dialog(req, res):
                 print('sessionStorage[state] == ', sessionStorage['state'])
                 # set_state()
                 if sessionStorage['state'] in CHOOSE['firstmeet']:  # если человек впервые в навыке
-                    print('start')
                     firstMeet(req, res)  # знакомимся
                     # после знакомства/ во время входа
                 elif sessionStorage['state'] == 'choose type':
