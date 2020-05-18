@@ -20,7 +20,7 @@ morph = pymorphy2.MorphAnalyzer()
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)  # уровень логирования
 
-sessionStorage = {'repeat': False, 'state': 'start', 'res': False}
+sessionStorage = {'repeat': False, 'res': False}
 # для каждой сессии общения хранятся подсказки, которые видел пользователь.
 # (buttons в JSON ответа).
 CHOOSE = {'random': ['случайная', 'рандом', 'все равно', 'своя', 'собственная', 'моя'],
@@ -324,7 +324,7 @@ def is_suit(req, res):
     print('is_suit')
     variables = {'да': ['да', 'подходить', 'конечно', 'ага', 'давай'], 'нет': ['нет', 'не', 'посмотреть', 'другие']}
     tokens = getNormal_tokens(req)
-    print(tokens)
+
     if set(tokens) & set(variables['нет']):
         print(set(tokens) & set(variables['нет']))
         showWorkout_list(req, res)
@@ -332,9 +332,11 @@ def is_suit(req, res):
         sessionStorage['res'] = False
     elif set(tokens) & set(variables['да']):
         sessionStorage['state'] = 'startTraining'
+        sessionStorage['res'] = False
         startTraining(req, res)
     else:
         sessionStorage['repeat'] = True
+        sessionStorage['res'] = False
 
 
 def areYouReady(req, res):
