@@ -369,7 +369,7 @@ def firstMeet(req, res):
         elif sessionStorage['state'] == 'firstmeet_lunges':
             res['response']['text'] = random.choice(['Сколько выпадов на одну ногу, ты можешь сделать?',
                                                      'Назови число выпадов на одну ногу, которое ты можешь выполнить.'])
-            sessionStorage['repeat'] = False
+        sessionStorage['repeat'] = False
     elif sessionStorage['state'] in ['firstmeet_pushups', 'firstmeet_lunges'] and req['request']['original_utterance']:
         processing_info(req, res)
     else:
