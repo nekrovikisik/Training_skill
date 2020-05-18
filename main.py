@@ -249,10 +249,25 @@ def choose_workout(req, res, workout_name, autor='vikisik'):  # state: choose_wo
     }]
     sessionStorage['state'] = 'is_suit'
 
+def getWorkout_list(req):
+    tokens = getNormal_tokens(req)
+    if set(['предложенный', 'случайная', 'равно', 'пофиг' ]) & set(tokens):
+        autor = 'vikisik'
+        return autor
+    elif set(['мой', 'свой', 'собственная', 'добавить']) & set(tokens):
+        autor = req[user_id]
+        return autor
+    else:
+        sessionStorage['repeat'] = True
+
+
 
 def showWorkout_list(req, res):
     workout_names = WORKOUTS()
     if sessionStorage['res'] == False:
+
+
+
 
         resp = random.choice(['Мы можем предложить следующие тренировки:', 'Вот тренировки:', 'Список тренировок: '])
         workout_list = '\n'.join([f'{i}. {workout_names[i - 1]} ' for i in range(1, len(workout_names) + 1)])
@@ -412,4 +427,4 @@ def get_training(req, res):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=8888)
