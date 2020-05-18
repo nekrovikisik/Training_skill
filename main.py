@@ -57,6 +57,7 @@ def main():
 
 def handle_dialog(req, res):
     if is_new_session(req):
+        print('This id new session')
         setUserId(req)
         if is_new_user(req):
               # добавляем в sessionStorage userid
@@ -76,7 +77,7 @@ def handle_dialog(req, res):
                 res["response"] = {"end_session": False}
             else:
                 print('sessionStorage[state] == ', sessionStorage['state'])
-                set_state()
+                # set_state()
                 if sessionStorage['state'] in CHOOSE['firstmeet']:  # если человек впервые в навыке
                     print('start')
                     firstMeet(req, res)  # знакомимся
@@ -95,9 +96,9 @@ def handle_dialog(req, res):
                     startTraining(req, res)
     setLast_entance(sessionStorage['uid'])
 
-def set_state(): # эта функция закидывает стейт в бд
-    state = sessionStorage['state']
-    my_uid = sessionStorage['uid']
+# def set_state(): # эта функция закидывает стейт в бд
+#     state = sessionStorage['state']
+#     my_uid = sessionStorage['uid']
 
 
 def setUserId(req):
