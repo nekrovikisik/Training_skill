@@ -427,4 +427,4 @@ def get_training(req, res):
 
 
 if __name__ == '__main__':
-    app.run(port=8888)
+    app.run()
