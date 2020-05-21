@@ -1,5 +1,5 @@
 class User():
-    def __init__(self, uid, last_entrace):
+    def __init__(self, uid):
         self.uid = uid
 
     def set_last_entrace(self):
@@ -7,6 +7,7 @@ class User():
         rows = session.query(Users).filter(Users.uid == self.uid).update({'last_entrace': last_entrace})
         session.commit()
         self.last_entrace = last_entrace
+
 
     def set_pushups(self, pushups):
         self.pushups = pushups
@@ -20,3 +21,10 @@ class User():
         # autor = self.uid
         # return session.query(Workouts.name).filter(Workouts.ex_id == Exercises.id, Workouts.autor == self.uid).all()
         pass
+
+    def set_state(self, state):
+        self.state = state
+
+
+    def get_State(self):
+        return self.state

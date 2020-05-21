@@ -14,8 +14,10 @@ from data.exercises import Exercises
 from data.workouts import Workouts
 from data.users import Users
 from data.db_session import SqlAlchemyBase
+from user import User
 
 morph = pymorphy2.MorphAnalyzer()
+user = True
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)  # уровень логирования
@@ -56,11 +58,14 @@ def main():
 
 
 def handle_dialog(req, res):
-    setUserId(req)
-    if is_new_session(req):
+    global user
+
+
+    if not is_new_session(req):
         print('This id new session')
-        setUserId(req)
         if is_new_user(req):
+            print('THIS USER IS NEW')
+            user = User(uid=user_id(req))
               # добавляем в sessionStorage userid
             sessionStorage['state'] = 'firstMeet'
             firstMeet(req, res)
@@ -94,19 +99,20 @@ def handle_dialog(req, res):
                     is_suit(req, res)
                 elif sessionStorage['state'] == 'startTraining':
                     startTraining(req, res)
-    setLast_entance(sessionStorage['uid'])
+    #setLast_entance(user_id(req))
+    user.set_state(sessionStorage['state'])
 
 # def set_state(): # эта функция закидывает стейт в бд
 #     state = sessionStorage['state']
-#     my_uid = sessionStorage['uid']
+#     my_uid = user_id(req)
 
 
-def setUserId(req):
-    try:
-        sessionStorage['uid'] = user_id(req)
-    except:
-        sessionStorage['uid'] = app_id(req)
-    print('ACHTUNG USER ID', sessionStorage['uid'])
+# def setUserId(req):
+#     try:
+#         user_id(req) = user_id(req)
+#     except:
+#         user_id(req) = app_id(req)
+#     print('ACHTUNG USER ID', user_id(req))
 
 
 def addUser(uid):
@@ -129,8 +135,8 @@ def is_new_session(req):
 
 
 def is_new_user(req):
-    setUserId(req)
-    uid = sessionStorage['uid']
+    # uid = setUserId(req)
+    uid = user_id(req)
     return not (session.query(Users.uid).filter(Users.uid == uid).first())
 
 
@@ -266,10 +272,6 @@ def getWorkout_list(req):
 def showWorkout_list(req, res):
     workout_names = WORKOUTS()
     if sessionStorage['res'] == False:
-
-
-
-
         resp = random.choice(['Мы можем предложить следующие тренировки:', 'Вот тренировки:', 'Список тренировок: '])
         workout_list = '\n'.join([f'{i}. {workout_names[i - 1]} ' for i in range(1, len(workout_names) + 1)])
         question = random.choice(
@@ -289,9 +291,6 @@ def showWorkout_list(req, res):
             print('numWorkout_treatment')
             num = numWorkout_treatment(tokens)
             choose_workout(req, res, workout_names[int(num)].title(), autor='vikisik')
-        # print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', num)
-        # print(WORKOUTS[int(num) - 1])
-        # choose_workout(req, res, workout_name)
 
         try:
             print(num)
@@ -363,54 +362,56 @@ def app_id(req):
 
 
 def firstMeet(req, res):
-    if sessionStorage['repeat']:  # если человек сказал фигню
-        print('не говори ФИГНЮ')
-        if sessionStorage['state'] == 'firstmeet_pushups':
-            res['response']['text'] = random.choice(['Сколько раз ты можешь отжаться?',
-                                                     'Назови число отжиманий, которое ты можешь выполнить.'])
+    if sessionStorage['state'] in ['firstmeet_pushups', 'firstmeet_lunges']:
+        if sessionStorage['repeat']:  # если человек сказал фигню
+            print('не гоpassвори ФИГНЮ')
+            if sessionStorage['state'] == 'firstmeet_pushups':
+                res['response']['text'] = random.choice(['Сколько раз ты можешь отжаться?',
+                                                         'Назови число отжиманий, которое ты можешь выполнить.'])
+            elif sessionStorage['state'] == 'firstmeet_lunges':
+                res['response']['text'] = random.choice(['Сколько выпадов на одну ногу, ты можешь сделать?',
+                                                         'Назови число выпадов на одну ногу, которое ты можешь выполнить.'])
             sessionStorage['repeat'] = False
-        elif sessionStorage['state'] == 'firstmeet_lunges':
-            res['response']['text'] = random.choice(['Сколько выпадов на одну ногу, ты можешь сделать?',
-                                                     'Назови число выпадов на одну ногу, которое ты можешь выполнить.'])
-        sessionStorage['repeat'] = False
-    elif sessionStorage['state'] in ['firstmeet_pushups', 'firstmeet_lunges'] and req['request']['original_utterance']:
-        processing_info(req, res)
+        elif req['request']['original_utterance'] and not sessionStorage['repeat']:
+            processing_info(req, res)
     else:
         print('Привет! Мы тут здороваемся')
         if 'info' not in list(sessionStorage.keys()):  # здороваемся
             res['response']['text'] = 'Привет! Со мной ты будешь тренироваться с максимальной эффективностью! ' \
                                       'Сколько ты можешь отжаться от пола?'
-            sessionStorage['user'] = {'pushups': -1, 'lunges': -1}
+           # sessionStorage['user'] = {'pushups': -1, 'lunges': -1}
             sessionStorage['state'] = 'firstmeet_pushups'
 
 
 def processing_info(req, res):
     # если человек назвал хоть какое-то число
-    try:
+    #try:
         my_num = [i for i in req['request']['nlu']["entities"] if i['type'] == "YANDEX.NUMBER"]
-        print(my_num)
         my_num = my_num[0]["value"]
+        print(my_num)
         if sessionStorage['state'] == 'firstmeet_pushups':
-            try:
-                sessionStorage['user']['pushups'] = my_num[-1]
-            except:
-                sessionStorage['user']['pushups'] = my_num
-            finally:
+            #try:
+                #sessionStorage['user']['pushups'] = my_num[-1]
+                user.set_pushups(my_num)
+            #except:
+            #    sessionStorage['user']['pushups'] = my_num
+            #finally:
                 sessionStorage['state'] = 'firstmeet_lunges'
                 print('now: finally   ', sessionStorage['state'])
                 res['response']['text'] = 'Отлично! Теперь скажи, сколько выпадов ты можешь сделать на каждую ногу?'
 
         elif sessionStorage['state'] == 'firstmeet_lunges':
-            try:
-                sessionStorage['user']['lunges'] = my_num[-1]
-            except:
-                sessionStorage['user']['lunges'] = my_num
-            finally:
+                user.set_lunges(my_num)
+     #       try:
+     #           sessionStorage['user']['lunges'] = my_num[-1]
+     #       except:
+     #           sessionStorage['user']['lunges'] = my_num
+     #       finally:
                 sessionStorage['state'] = 'get_training'
                 get_training(req, res)
-    except:
-        sessionStorage['repeat'] = True
-        firstMeet(req, res)
+    #except:
+    #    sessionStorage['repeat'] = True
+    #    firstMeet(req, res)
 
 
 def get_training(req, res):
@@ -430,4 +431,4 @@ def get_training(req, res):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=8888)
